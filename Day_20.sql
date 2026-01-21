@@ -26,3 +26,12 @@ FROM salaries;SELECT COUNT(*) * 0.2 FROM (
 ) AS percent_20
 LIMIT (SELECT COUNT(*) * 0.2 FROM percent_20);
 
+-- c) 
+WITH surpassed_bllion AS(
+	SELECT *,
+		SUM(salary) OVER(PARTITION BY teamID ORDER BY yearID ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS cumulative_spending
+	FROM salaries
+)
+SELECT * FROM surpassed_bllion
+WHERE cumulative_spending >= 1000000000
+
