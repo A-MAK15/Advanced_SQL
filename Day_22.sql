@@ -57,3 +57,17 @@ WITH team_start AS (
 SELECT *
 FROM team_start
 WHERE RN = 1;
+
+-- base ending team
+WITH ending_base AS (
+	SELECT * FROM (
+		SELECT p.playerID, nameGiven, finalGame, teamID AS team_end,
+			ROW_NUMBER() OVER(PARTITION BY p.playerID ORDER BY finalGame DESC) AS RN
+		FROM players p
+		LEFT JOIN salaries s
+		ON p.playerID = s.playerID
+	) AS team_started_with
+)
+SELECT * 
+FROM ending_base
+WHERE RN = 1;
