@@ -71,3 +71,41 @@ WITH ending_base AS (
 SELECT * 
 FROM ending_base
 WHERE RN = 1;
+
+
+
+-- 3.---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 3)
+SELECT * FROM players;
+
+SELECT * FROM (
+	WITH team_start AS (
+		SELECT * FROM (
+			SELECT p.playerID, nameGiven, debut, teamID AS team_start,
+				ROW_NUMBER() OVER(PARTITION BY p.playerID ORDER BY debut ASC) AS RN
+			FROM players p
+			LEFT JOIN salaries s
+			ON p.playerID = s.playerID
+		) AS team_started_with
+	)
+	SELECT *
+	FROM team_start
+	WHERE RN = 1
+) AS debut_start
+LEFT JOIN (
+SELECT * FROM (
+	WITH ending_base AS (
+		SELECT * FROM (
+			SELECT p.playerID, nameGiven, finalGame, teamID AS team_end,
+				ROW_NUMBER() OVER(PARTITION BY p.playerID ORDER BY finalGame DESC) AS RN
+			FROM players p
+			LEFT JOIN salaries s
+			ON p.playerID = s.playerID
+		) AS team_started_with
+	)
+	SELECT * 
+	FROM ending_base
+	WHERE RN = 1
+	) AS last_team
+)
+ON playerID.debut_start = playerID.last_team
