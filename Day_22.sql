@@ -103,3 +103,36 @@ WHERE RN = 1;
 	) last_team
 	ON  ts.playerID = last_team.playerID
 	WHERE RNS = 1
+
+---------------------------------------------------------------------------------------------------------3. Final --------------------------------------------------------------------------------------------------
+	WITH team_start AS (
+		SELECT * FROM (
+			SELECT p.playerID, nameGiven, debut, teamID AS team_start,
+				ROW_NUMBER() OVER(PARTITION BY p.playerID ORDER BY debut ASC) AS RNS
+			FROM players p
+			LEFT JOIN salaries s
+			ON p.playerID = s.playerID
+		) AS team_started_with
+	)
+	SELECT COUNT(*) AS played_for_same_team
+	FROM team_start ts
+    LEFT JOIN (
+	WITH ending_base AS (
+		SELECT * FROM (
+			SELECT p.playerID, nameGiven, finalGame, teamID AS team_end,
+				ROW_NUMBER() OVER(PARTITION BY p.playerID ORDER BY finalGame DESC) AS RN
+			FROM players p
+			LEFT JOIN salaries s
+			ON p.playerID = s.playerID
+		) AS team_started_with
+	)
+	SELECT * 
+	FROM ending_base
+	WHERE RN = 1
+	) last_team
+	ON  ts.playerID = last_team.playerID
+	WHERE RNS = 1
+    AND YEAR(finalGame) - YEAR(debut) > 10
+    AND team_start IS NOT NULL
+    AND team_start IS NOT NULL 
+    AND team_start = team_end
