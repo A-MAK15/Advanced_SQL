@@ -29,3 +29,6 @@ ON bb.teamID = lb.teamID
 LEFT JOIN rightbat rb
 ON lb.teamID = rb.teamID
 ORDER BY bb.teamID
+
+
+-- c)
